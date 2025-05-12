@@ -1,0 +1,47 @@
+import numpy as np
+import pandas as pd
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+
+# Load the dataset manually from a CSV file
+file_path = "iris.csv"  # Change this to your actual file path
+iris_df = pd.read_csv(file_path)
+
+# Inspect the first few rows (Optional)
+print(iris_df.head())
+
+# Rename columns if necessary (depends on the dataset format)
+# Assuming the dataset has columns: ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'species']
+feature_columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+data = iris_df[feature_columns].values  # Extract feature values
+
+# Convert species names to numerical labels
+label_names = iris_df['species'].unique()  # Get unique species names
+label_mapping = {name: i for i, name in enumerate(label_names)}  # Create mapping
+labels = iris_df['species'].map(label_mapping).values  # Convert to numerical labels
+
+# Apply PCA for dimensionality reduction
+pca = PCA(n_components=2)
+data_reduced = pca.fit_transform(data)
+
+# Create a DataFrame for the reduced data
+reduced_df = pd.DataFrame(data_reduced, columns=['Principal Component 1', 'Principal Component 2'])
+reduced_df['Label'] = labels
+
+# Plot the reduced data
+plt.figure(figsize=(8, 6))
+colors = ['r', 'g', 'b']
+for i, label in enumerate(np.unique(labels)):
+    plt.scatter(
+        reduced_df[reduced_df['Label'] == label]['Principal Component 1'],
+        reduced_df[reduced_df['Label'] == label]['Principal Component 2'],
+        label=label_names[label],
+        color=colors[i]
+    )
+
+plt.title('PCA on Iris Dataset')
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.legend()
+plt.grid()
+plt.show()
